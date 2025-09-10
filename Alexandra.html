@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>O Segredo para a Alexandra</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #0d0124;
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+            flex-direction: column;
+            position: relative;
+            cursor: pointer;
+        }
+
+        #message-container {
+            font-size: 4em;
+            color: #ff33a1;
+            text-align: center;
+            opacity: 0;
+            transform: scale(0.5);
+            transition: opacity 1.5s ease-in, transform 1.5s ease-in;
+            font-weight: bold;
+            text-shadow: 0 0 15px #ff33a1, 0 0 25px #ff33a1;
+            position: relative;
+            z-index: 10;
+        }
+
+        #message-container.show {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .heart {
+            position: absolute;
+            font-size: 2.5em;
+            color: #ff5277;
+            animation: floatUp 5s infinite;
+            opacity: 0;
+            z-index: 5;
+            animation-delay: var(--delay);
+            animation-duration: var(--duration);
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 0;
+            }
+            25% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .click-point {
+            position: absolute;
+            width: 40px; /* Menor para ser mais difícil */
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2em; /* Tamanho do ícone menor */
+            color: rgba(255, 255, 255, 0.6); /* Cor mais transparente */
+            cursor: pointer;
+            z-index: 20;
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.4);
+            animation: pulse-heart 3s infinite alternate; /* Animação mais lenta */
+            transition: transform 0.2s, color 0.2s;
+        }
+
+        .click-point:hover {
+            color: rgba(255, 255, 255, 0.8);
+            transform: scale(1.1);
+        }
+
+        @keyframes pulse-heart {
+            0% { transform: scale(1); opacity: 0.6; }
+            100% { transform: scale(1.05); opacity: 0.8; }
+        }
+
+        .click-point.clicked {
+            opacity: 0;
+            animation: none;
+            transition: transform 0.2s, opacity 0.2s;
+        }
+
+        .particle {
+            position: absolute;
+            background-color: #ffffff;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: fadeOut 1s forwards;
+            opacity: 1;
+        }
+
+        @keyframes fadeOut {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(0); opacity: 0; }
+        }
+
+        #initial-message {
+            font-size: 2em;
+            color: #e0e0e0;
+            text-align: center;
+            opacity: 1;
+            transition: opacity 1s ease-out;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            text-shadow: 0 0 5px #000;
+        }
+    </style>
+</head>
+<body>
+
+    <h2 id="initial-message">Um segredo te espera, Alexandra. Encontre todos os corações escondidos na tela para revelá-lo.</h2>
+
+    <h1 id="message-container">Alexandra, Eu sempre acreditei que a Afrodite era uma lenda, mas agora que te conheci, percebi que o mito era apenas uma preparação para a realidade. Você é a prova viva de que a beleza divina existe.!</h1>
+    
+    <script>
+        const numberOfPoints = 15; // Aumentamos para 15 corações
+        let clickedPoints = 0;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            for (let i = 0; i < numberOfPoints; i++) {
+                createClickPoint(i);
+            }
+        });
+
+        function createClickPoint(index) {
+            const clickPoint = document.createElement('div');
+            clickPoint.className = 'click-point';
+            clickPoint.textContent = '♡';
+            
+            // Posição aleatória na tela, em uma área mais ampla
+            const top = Math.random() * 95;
+            const left = Math.random() * 95;
+            clickPoint.style.top = `${top}%`;
+            clickPoint.style.left = `${left}%`;
+
+            document.body.appendChild(clickPoint);
+
+            clickPoint.addEventListener('click', (e) => {
+                if (!clickPoint.classList.contains('clicked')) {
+                    clickPoint.classList.add('clicked');
+                    clickedPoints++;
+                    
+                    createParticles(e.clientX, e.clientY);
+
+                    if (clickedPoints === numberOfPoints) {
+                        revealSurprise();
+                    }
+                }
+            });
+        }
+
+        function createParticles(x, y) {
+            const numberOfParticles = 15;
+            for (let i = 0; i < numberOfParticles; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                
+                const size = Math.random() * 5 + 2;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                
+                const angle = Math.random() * Math.PI * 2;
+                const radius = Math.random() * 50 + 20;
+                const endX = x + Math.cos(angle) * radius;
+                const endY = y + Math.sin(angle) * radius;
+                
+                particle.style.left = `${x}px`;
+                particle.style.top = `${y}px`;
+                
+                document.body.appendChild(particle);
+
+                const animation = particle.animate([
+                    { transform: 'translate(0, 0)', opacity: 1 },
+                    { transform: `translate(${endX - x}px, ${endY - y}px)`, opacity: 0 }
+                ], {
+                    duration: 500,
+                    easing: 'ease-out'
+                });
+
+                animation.onfinish = () => particle.remove();
+            }
+        }
+
+        function revealSurprise() {
+            const messageContainer = document.getElementById('message-container');
+            const initialMessage = document.getElementById('initial-message');
+            
+            initialMessage.style.opacity = '0';
+            
+            // Remove todos os corações de clique restantes
+            document.querySelectorAll('.click-point').forEach(point => point.remove());
+
+            messageContainer.classList.add('show');
+            
+            setTimeout(() => {
+                const body = document.body;
+                const numberOfHearts = 50;
+                for (let i = 0; i < numberOfHearts; i++) {
+                    const heart = document.createElement('div');
+                    heart.className = 'heart';
+                    heart.textContent = '❤️';
+                    
+                    const size = Math.random() * 2 + 1;
+                    heart.style.fontSize = `${size}em`;
+                    
+                    const startX = Math.random() * window.innerWidth;
+                    heart.style.left = `${startX}px`;
+                    
+                    const moveX = (Math.random() - 0.5) * 50;
+                    heart.style.transform = `translateX(${moveX}px)`;
+
+                    heart.style.setProperty('--delay', `${Math.random() * 2}s`);
+                    heart.style.setProperty('--duration', `${Math.random() * 3 + 4}s`);
+                    
+                    body.appendChild(heart);
+                }
+            }, 1000);
+        }
+    </script>
+
+</body>
+</html>
